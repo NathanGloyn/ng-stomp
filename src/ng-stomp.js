@@ -1,13 +1,13 @@
 /**
  * ngStomp
  *
- * @version 0.2.0
+ * @version 0.3.0
  * @author Maik Hummel <m@ikhummel.com>
  * @license MIT
  */
 
 /*global
-    angular, SockJS, Stomp */
+    angular, SockJS, webstomp */
 
 angular
   .module('ngStomp', [])
@@ -16,7 +16,7 @@ angular
     function ($rootScope, $q) {
       this.sock = null
       this.stomp = null
-      this.debug = null
+      this.debug = function(str) {};
 
       this.setDebug = function (callback) {
         this.debug = callback
@@ -28,7 +28,7 @@ angular
         var dfd = $q.defer()
 
         this.sock = new SockJS(endpoint)
-        this.stomp = Stomp.over(this.sock)
+        this.stomp = webstomp.over(this.sock)
         this.stomp.debug = this.debug
         this.stomp.connect(headers, function (frame) {
           dfd.resolve(frame)
@@ -68,7 +68,7 @@ angular
         try {
           var payloadJson = JSON.stringify(body)
           headers = headers || {}
-          this.stomp.send(destination, headers, payloadJson)
+          this.stomp.send(destination, payloadJson, headers)
           dfd.resolve()
         } catch (e) {
           dfd.reject(e)
